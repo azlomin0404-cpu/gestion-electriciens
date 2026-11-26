@@ -1,11 +1,10 @@
-
-name: Build Android APK
+name: Build Gestion Electriciens V2 APK
 
 on:
   workflow_dispatch:
   push:
     paths:
-      - 'gestion_electriciens_flutter.zip'
+      - 'Gestion_Electriciens_V2.zip'
       - '.github/workflows/build-apk.yml'
 
 jobs:
@@ -13,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Java
@@ -27,27 +26,23 @@ jobs:
         with:
           channel: stable
 
-      - name: Extract project
+      - name: Extract V2 project
         run: |
-          mkdir appsrc
-          unzip -q gestion_electriciens_flutter.zip -d appsrc
-          PROJECT_DIR=$(find appsrc -name pubspec.yaml -printf '%h\n' | head -n 1)
-          echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
-
-      - name: Prepare Android project
-        run: |
-          cd "$PROJECT_DIR"
-          rm -rf android
+          unzip -o Gestion_Electriciens_V2.zip -d .
+          cd Gestion_Electriciens_V2
           flutter create . --platforms=android --org com.gestion.electriciens
 
-      - name: Build APK
-        run: |
-          cd "$PROJECT_DIR"
-          flutter pub get
-          flutter build apk --release
+      - name: Install dependencies
+        working-directory: Gestion_Electriciens_V2
+        run: flutter pub get
 
-      - name: Upload APK
+      - name: Build APK
+        working-directory: Gestion_Electriciens_V2
+        run: flutter build apk --release
+
+      - name: Upload V2 APK
         uses: actions/upload-artifact@v4
         with:
-          name: Gestion-Electriciens-APK
-          path: ${{ env.PROJECT_DIR }}/build/app/outputs/flutter-apk/app-release.apk
+          name: Gestion-Electriciens-V2-APK
+          path: Gestion_Electriciens_V2/build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 7
